@@ -49,23 +49,33 @@ class HomeworkOrganiserGUI:
         # I can compare using .grid with using .pack
         # holds the add subjects components
         add_subject_frame = ttk.LabelFrame(self.frame1, text="Add Subject")
-        add_subject_frame.pack()
+        add_subject_frame.pack(padx=5, pady=5)
 
         # entry boxes with labels
         subject_label = ttk.Label(add_subject_frame, text="Subject")
-        self.subject = ttk.Entry(add_subject_frame)
-        self.subject.grid(row=1, column=0)
+        self.subject_entry = ttk.Entry(add_subject_frame)
+        self.subject_entry.grid(row=1, column=0)
         subject_label.grid(row=0, column=0)
 
         importance_label = ttk.Label(add_subject_frame, text="Importance")
-        self.importance = ttk.Entry(add_subject_frame)
-        self.importance.grid(row=1,column=1)
+        self.importance_entry = ttk.Entry(add_subject_frame)
+        self.importance_entry.grid(row=1,column=1)
         importance_label.grid(row=0, column=1)
 
         time_label = ttk.Label(add_subject_frame, text="Time")
-        self.time = ttk.Entry(add_subject_frame)
-        self.time.grid(row=3,column=0)
+        self.time_entry = ttk.Entry(add_subject_frame)
+        self.time_entry.grid(row=3,column=0)
         time_label.grid(row=2, column=0)
+
+        # add subject button
+        self.add_subject_button = ttk.Button(add_subject_frame, text="Add Subject")
+        self.add_subject_button.grid(column=1, row=2, rowspan=2)
+
+        # details entry box with label
+        detail_label = ttk.Label(add_subject_frame, text="Details")
+        detail_label.grid(row=4, column=0)
+        self.details_entry = ttk.Entry(add_subject_frame, width=42)
+        self.details_entry.grid(row=5, columnspan=2, padx=5)
 
 
     def frame2_components(self):
