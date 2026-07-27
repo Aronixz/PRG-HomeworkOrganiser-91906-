@@ -68,7 +68,7 @@ class HomeworkOrganiserGUI:
         time_label.grid(row=2, column=0)
 
         # add subject button
-        self.add_subject_button = ttk.Button(add_subject_frame, text="Add Subject")
+        self.add_subject_button = ttk.Button(add_subject_frame, text="Add Subject", command=self.add_subject)
         self.add_subject_button.grid(column=1, row=2, rowspan=2)
 
         # details entry box with label
@@ -81,6 +81,15 @@ class HomeworkOrganiserGUI:
     def frame2_components(self):
         '''Initialise the frame2 components'''
         pass
+
+    def add_subject(self):
+        '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
+        # must go after dictionary input
+        # deletes the entries
+        self.subject_entry.delete(0, tk.END)
+        self.importance_entry.delete(0, tk.END)
+        self.time_entry.delete(0, tk.END)
+        self.details_entry.delete(0, tk.END)
 
 root = tk.Tk()
 window = HomeworkOrganiserGUI(root)
