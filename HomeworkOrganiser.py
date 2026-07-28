@@ -1,3 +1,11 @@
+'''
+Name: Aaron Adil
+Purpose: Help students organise their learning after school
+Start Date: 21/07/2026
+Date: 28/07/2026
+Version: 1
+
+'''
 import tkinter as tk
 from tkinter import ttk
 
@@ -9,9 +17,17 @@ windll.shcore.SetProcessDpiAwareness(1)
 font_title = ("Verdana", 14, "bold")
 font = ("Verdana", 11)
 
-class Logic:
-    def __init__(self):
-        pass
+# COLOUR BUTTON
+style = ttk.Style()
+style.configure("Green.TButton", foreground="white", background="green")
+
+# VARIABLES
+total_time = 0
+subject_details = {} # from the entries
+
+class TimeLogic:
+    def change_total_time(self, time):       
+        total_time -= time
 
 
 class HomeworkOrganiserGUI:
@@ -69,6 +85,7 @@ class HomeworkOrganiserGUI:
 
         # add subject button
         self.add_subject_button = ttk.Button(add_subject_frame, text="Add Subject", command=self.add_subject)
+        self.add_subject_button.configure(style="Green.TButton")
         self.add_subject_button.grid(column=1, row=2, rowspan=2)
 
         # details entry box with label
@@ -84,8 +101,15 @@ class HomeworkOrganiserGUI:
 
     def add_subject(self):
         '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
-        # must go after dictionary input
-        # deletes the entries
+        # adds the entries into a dictionary if valid
+        
+
+        # deletes the entries after confirmation
+        self.clear_subject_entries()
+        
+
+    def clear_subject_entries(self):
+        '''Deletes the entries'''
         self.subject_entry.delete(0, tk.END)
         self.importance_entry.delete(0, tk.END)
         self.time_entry.delete(0, tk.END)
