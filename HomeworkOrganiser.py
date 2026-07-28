@@ -2,12 +2,13 @@
 Name: Aaron Adil
 Purpose: Help students organise their learning after school
 Start Date: 21/07/2026
-Date: 28/07/2026
-Version: 1
-
+Date: 29/07/2026
+Version: 1 (basic features, second tab hasn't been started)
+Notes For Later: I can try to create a Logic class, and put the add subject functionality in the logic class. *BACK UP THE FILE FIRST!!!
 '''
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 # Tell Windows your app is DPI-aware: https://stackoverflow.com/questions/41315873/attempting-to-resolve-blurred-tkinter-text-scaling-on-windows-10-high-dpi-disp
 from ctypes import windll
@@ -18,8 +19,8 @@ font_title = ("Verdana", 14, "bold")
 font = ("Verdana", 11)
 
 # COLOUR BUTTON
-style = ttk.Style()
-style.configure("Green.TButton", foreground="white", background="green")
+# style = ttk.Style("Green.TButton", foreground="white", background="green")
+# style.configure()
 
 # VARIABLES
 total_time = 0
@@ -85,7 +86,6 @@ class HomeworkOrganiserGUI:
 
         # add subject button
         self.add_subject_button = ttk.Button(add_subject_frame, text="Add Subject", command=self.add_subject)
-        self.add_subject_button.configure(style="Green.TButton")
         self.add_subject_button.grid(column=1, row=2, rowspan=2)
 
         # details entry box with label
@@ -93,6 +93,8 @@ class HomeworkOrganiserGUI:
         detail_label.grid(row=4, column=0)
         self.details_entry = ttk.Entry(add_subject_frame, width=42)
         self.details_entry.grid(row=5, columnspan=2, padx=5)
+
+        '''Load Subject GUI'''
 
 
     def frame2_components(self):
@@ -102,7 +104,9 @@ class HomeworkOrganiserGUI:
     def add_subject(self):
         '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
         # adds the entries into a dictionary if valid
-        
+        inner_dict = {"Time":self.time_entry.get(), "Importance":self.importance_entry.get(), "Details":self.details_entry.get()}
+        subject_details.update({self.subject_entry.get():inner_dict})
+        print(subject_details)
 
         # deletes the entries after confirmation
         self.clear_subject_entries()
