@@ -8,7 +8,7 @@ Notes For Later: I can try to create a Logic class, and put the add subject func
 '''
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
+from tkinter.messagebox import*
 
 # Tell Windows your app is DPI-aware: https://stackoverflow.com/questions/41315873/attempting-to-resolve-blurred-tkinter-text-scaling-on-windows-10-high-dpi-disp
 # fixes blurry tkinter window
@@ -18,7 +18,7 @@ windll.shcore.SetProcessDpiAwareness(1)
 # CONSTANTS
 font_title = ("Verdana", 14, "bold")
 font = ("Verdana", 11)
-IMPORTANCE = ["Low", "Medium", "High"]
+IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 
 # COLOUR BUTTON
 # style = ttk.Style("Green.TButton", foreground="white", background="green")
@@ -75,6 +75,7 @@ class HomeworkOrganiserGUI:
         # entry boxes with labels
         subject_label = ttk.Label(add_subject_frame, text="Subject")
         self.subject_entry = ttk.Combobox(add_subject_frame, values=add_subject_combolist)
+        self.subject_entry.bind("<<ComboboxSelected>>", )
         self.subject_entry.grid(row=1, column=0)
         subject_label.grid(row=0, column=0)
 
@@ -99,7 +100,7 @@ class HomeworkOrganiserGUI:
         self.details_entry.grid(row=5, columnspan=2, padx=5)
 
         '''Load Subject GUI'''
-
+        self.load_subject_data()
 
     def frame2_components(self):
         '''Initialise the frame2 components'''
@@ -107,16 +108,29 @@ class HomeworkOrganiserGUI:
 
     def add_subject(self):
         '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
-        # adds the entries into a dictionary if valid
-        inner_dict = {"Time":self.time_entry.get(), "Importance":self.importance_entry.get(), "Details":self.details_entry.get()}
-        subject_details.update({self.subject_entry.get():inner_dict})
-        print(subject_details)
+        time = self.time_entry.get()
+        importance = self.importance_entry.get()
+        details = self.details_entry.get()
+        subject = self.subject_entry.get()
 
-        # adds the subject into the combobox. It updates constantly
-        self.subject_entry.config(values=list(subject_details.keys()))
+        if time == "" or importance == "" or details == "" or subject == "":
+            showerror("Missing Parameters", "You have empty entries, please write something")
+        else:
+            try:
+                int(time)
+                # adds the entries into a dictionary if valid
+                inner_dict = {"Time":time, "Importance":importance, "Details":details}
+                subject_details.update({self.subject_entry.get():inner_dict})
+                print(subject_details)
 
-        # deletes the entries after confirmation
-        self.clear_subject_entries()
+                # adds the subject into a list for the combobox. It updates constantly
+                self.subject_entry.config(values=list(subject_details.keys()))
+
+                # deletes the entries after confirmation
+                self.clear_subject_entries()
+
+            except ValueError:
+                showerror("Invalid Entry", "Time must be an integer")
         
 
     def clear_subject_entries(self):
@@ -125,6 +139,14 @@ class HomeworkOrganiserGUI:
         self.importance_entry.delete(0, tk.END)
         self.time_entry.delete(0, tk.END)
         self.details_entry.delete(0, tk.END)
+
+
+    def load_subject_data(self):
+        '''Loads the subject details for a particular selected subject'''
+        # get the subject
+        subject = self.subject_entry.get()
+
+
 
 root = tk.Tk()
 window = HomeworkOrganiserGUI(root)
