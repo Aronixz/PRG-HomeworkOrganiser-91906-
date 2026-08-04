@@ -62,16 +62,18 @@ class HomeworkOrganiserGUI:
 
         self.notebook.pack(padx=5, pady=5)
 
-        # frame 1 components
+        # frame 1 components gui
         self.frame1_components()
+        # frame 2 components gui
+        self.frame2_components()
 
 
     def frame1_components(self):
         '''Initialise the frame1 components'''
         
-        '''Add Subjects GUI'''
+        '''Add Homework GUI'''
         # holds the add subjects components
-        add_subject_frame = ttk.LabelFrame(self.frame1, text="Add Subject")
+        add_subject_frame = ttk.LabelFrame(self.frame1, text="Add Homework")
         add_subject_frame.pack(padx=5, pady=5)
 
         # entry boxes with labels
@@ -82,7 +84,7 @@ class HomeworkOrganiserGUI:
         subject_label.grid(row=0, column=0)
 
         importance_label = ttk.Label(add_subject_frame, text="Importance")
-        self.importance_entry = ttk.Spinbox(add_subject_frame, values=IMPORTANCE)
+        self.importance_entry = ttk.Combobox(add_subject_frame, values=IMPORTANCE)
         self.importance_entry.grid(row=1,column=1)
         importance_label.grid(row=0, column=1)
 
@@ -111,7 +113,25 @@ class HomeworkOrganiserGUI:
 
     def frame2_components(self):
         '''Initialise the frame2 components'''
-        pass
+        self.homework_list_frame = ttk.LabelFrame(self.frame2, text="Homework List")
+        self.homework_list_frame.pack()
+
+        # preconfigured grid
+        self.homework_list_frame.rowconfigure([0,1,2], minsize=20)
+        self.homework_list_frame.columnconfigure([0,1,2,3], minsize=100)
+
+        # will use for loop
+
+        # titles 
+        ttk.Label(self.homework_list_frame, text="Subject").grid(row=0, column=1)
+        ttk.Label(self.homework_list_frame, text="Importance").grid(row=0, column=2)
+        ttk.Label(self.homework_list_frame, text="Time").grid(row=0, column=3)
+
+        # checkbox
+        self.tick_homework = ttk.Checkbutton(self.homework_list_frame)
+        self.tick_homework.grid(row=1, column=0)
+
+
 
     def add_subject(self):
         '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
