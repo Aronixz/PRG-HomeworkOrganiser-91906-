@@ -18,6 +18,7 @@ windll.shcore.SetProcessDpiAwareness(1)
 # CONSTANTS
 font_title = ("Verdana", 14, "bold")
 font = ("Verdana", 11)
+font_sub = ("Verdana", 12, "bold")
 IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 
 # COLOUR BUTTON
@@ -38,6 +39,7 @@ class HomeworkOrganiserGUI:
     def __init__(self, root):
         '''Initialise everything'''
         self.root = root
+        self.root.title("Homework Organiser")
 
         # initialise ttk.Notebook in the root window
         self.notebook = ttk.Notebook(self.root)
@@ -99,8 +101,13 @@ class HomeworkOrganiserGUI:
         self.details_entry = ttk.Entry(add_subject_frame, width=42)
         self.details_entry.grid(row=5, columnspan=2, padx=5)
 
-        '''Load Subject GUI'''
-        self.load_subject_data()
+        '''Load Homework on button press'''
+        ttk.Label(self.frame1, text="Load homework data", font=font_sub).pack()
+        ttk.Label(self.frame1, text="If you want to edit a previous task, \nselect it from the subject dropdown, \nand click this button ⬇").pack()
+
+        # Load homework button
+        load_subject_button = ttk.Button(self.frame1, text="Load Homework", command=self.load_subject_data)
+        load_subject_button.pack()
 
     def frame2_components(self):
         '''Initialise the frame2 components'''
@@ -146,6 +153,31 @@ class HomeworkOrganiserGUI:
         # get the subject
         subject = self.subject_entry.get()
 
+        # if there is no subject (the dict is empty)
+        if subject_details == {}:
+            showerror("No homework", "Lucky you! You have no homework to load.")
+        elif subject == "":
+            showerror("No subject selected in entry box", "You have no subject in the entry box")
+        elif subject not in list(subject_details.keys()):
+            showwarning("Subejct Not Added", "This subject has not been added yet. Click the 'Add Homework' button first")
+        else:
+            # clear the entries first
+            self.clear_subject_entries()
+
+            # it also clears the subject entry, so I will add it back
+            self.subject_entry.insert(0, subject)
+
+            # enter the subject time
+            time = subject_details[subject]["Time"]
+            self.time_entry.insert(0, time)
+
+            # enter the subject importance
+            importance = subject_details[subject]["Importance"]
+            self.importance_entry.insert(0, importance)
+
+            # enter the details 
+            details = subject_details[subject]["Details"]
+            self.details_entry.insert(0, details)
 
 
 root = tk.Tk()
