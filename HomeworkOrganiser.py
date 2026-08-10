@@ -28,6 +28,7 @@ IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 # VARIABLES
 total_time = 0
 subject_details = {} # from the entries
+temp_subject_details = subject_details
 add_subject_combolist = []
 count = 1
 
@@ -118,38 +119,45 @@ class HomeworkOrganiserGUI:
 
     def add_to_hmklist(self):
         '''Adds the homework to the second tab'''
-        homework_list_frame.destroy()
+        subject_list = list(subject_details.keys())
+        temp_subject_details = {}
+        temp_subject_details.update({f"{subject_list[-1]}":subject_details[subject_list[-1]]})
+        print(temp_subject_details)
+
         global count
-        for subject in subject_details:
-            homework_list_frame = ttk.LabelFrame(self.frame2, text=f"Homework #{count}")
-            homework_list_frame.pack()
+        for subject in temp_subject_details:
+            
+            self.homework_list_frame = ttk.LabelFrame(self.frame2, text=f"Homework #{count}")
+            self.homework_list_frame.pack()
             count += 1
 
-            # preconfigured grid
-            homework_list_frame.rowconfigure([0,1,2], minsize=20)
-            homework_list_frame.columnconfigure([0,1,2,3], minsize=100)
+            # preconfigured grid for each frame
+            self.homework_list_frame.rowconfigure([0,1,2], minsize=20)
+            self.homework_list_frame.columnconfigure([0,1,2,3], minsize=100)
 
             # titles 
-            ttk.Label(homework_list_frame, text="Subject", font=font_sub).grid(row=0, column=1)
-            ttk.Label(homework_list_frame, text="Importance", font=font_sub).grid(row=0, column=2)
-            ttk.Label(homework_list_frame, text="Time", font=font_sub).grid(row=0, column=3)
+            ttk.Label(self.homework_list_frame, text="Subject", font=font_sub).grid(row=0, column=1)
+            ttk.Label(self.homework_list_frame, text="Importance", font=font_sub).grid(row=0, column=2)
+            ttk.Label(self.homework_list_frame, text="Time", font=font_sub).grid(row=0, column=3)
 
             # checkbox
-            self.tick_homework = ttk.Checkbutton(homework_list_frame)
+            self.tick_homework = ttk.Checkbutton(self.homework_list_frame)
             self.tick_homework.grid(row=1, column=0)
 
             # label for items
-            subject_lbl = ttk.Label(homework_list_frame, text=subject)
+            subject_lbl = ttk.Label(self.homework_list_frame, text=subject)
             subject_lbl.grid(row=1, column=1)
 
-            importance_lbl = ttk.Label(homework_list_frame, text=subject_details[subject]["Importance"])
+            importance_lbl = ttk.Label(self.homework_list_frame, text=temp_subject_details[subject]["Importance"])
             importance_lbl.grid(row=1, column=2)
 
-            time_lbl = ttk.Label(homework_list_frame, text=subject_details[subject]["Time"])
+            time_lbl = ttk.Label(self.homework_list_frame, text=temp_subject_details[subject]["Time"])
             time_lbl.grid(row=1, column=3)
 
-            details_lbl = ttk.Label(homework_list_frame, text=subject_details[subject]["Details"])
+            details_lbl = ttk.Label(self.homework_list_frame, text=temp_subject_details[subject]["Details"])
             details_lbl.grid(row=2, column=1, columnspan=3)
+
+
 
     def add_subject(self):
         '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
@@ -173,6 +181,8 @@ class HomeworkOrganiserGUI:
 
                 # deletes the entries after confirmation
                 self.clear_subject_entries()
+                
+                #self.remove_homework_list()
                 self.add_to_hmklist()
 
             except ValueError:
