@@ -2,13 +2,14 @@
 Name: Aaron Adil
 Purpose: Help students organise their learning after school
 Start Date: 21/07/2026
-Date: 6/8/2026
-Version: 2 (started second tab, added some validation)
+Date: 12/8/2026
+Version: 2 (almosy done second tab, need to add save features)
 Notes For Later: I can try to create a Logic class, and put the add subject functionality in the logic class. *BACK UP THE FILE FIRST!!!
 '''
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import*
+import json
 
 # Tell Windows your app is DPI-aware: https://stackoverflow.com/questions/41315873/attempting-to-resolve-blurred-tkinter-text-scaling-on-windows-10-high-dpi-disp
 # fixes blurry tkinter window
@@ -20,6 +21,7 @@ font_title = ("Verdana", 14, "bold")
 font = ("Verdana", 11)
 font_sub = ("Verdana", 12, "bold")
 IMPORTANCE = ["Low", "Medium", "High", "Very High"]
+MAX_TIME = 1440
 
 # COLOUR BUTTON
 # style = ttk.Style("Green.TButton", foreground="white", background="green")
@@ -27,27 +29,26 @@ IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 
 # VARIABLES
 total_time = 0
-subject_details = {} # from the entries
+subject_details = {}
 temp_subject_details = subject_details
 add_subject_combolist = []
 count = 1
 
 class TimeLogic:
-    def __init__(self, root):
-        self.root = root
-        self.total_time = total_time
-
     def remove_total_time(self, time):
-        self.total_time -= time
+        global total_time
+        total_time -= time
 
     def add_to_total_time(self, time):
-        self.total_time += time
+        global total_time
+        total_time += time
+        print(total_time)
 
 
-class Check:
-    def __init__(self, count):
-        self.count = count
-        ttk.Checkbutton(self.homework_list_frame)
+# class Check:
+#     def __init__(self, count):
+#         self.count = count
+#         ttk.Checkbutton(self.homework_list_frame)
 
 
 class HomeworkOrganiserGUI:
@@ -57,7 +58,7 @@ class HomeworkOrganiserGUI:
         self.root.title("Homework Organiser")
 
         # initialise time logic
-        self.time = TimeLogic(root)
+        self.time = TimeLogic()
 
         # initialise ttk.Notebook in the root window
         self.notebook = ttk.Notebook(self.root)
@@ -71,8 +72,12 @@ class HomeworkOrganiserGUI:
         # labels that will be included in each frame
         label1 = ttk.Label(self.frame1, text="Add Homework", font=font_title)
         label2 = ttk.Label(self.frame2, text="Homework List", font=font_title)
-        label1.pack(padx=15, pady=15)
+        label1.pack(padx=15, pady=15, side=tk.TOP)
         label2.pack(padx=15, pady=15)
+
+        # opens a help window for clarification using show info message box
+        self.help1 = ttk.Button(self.frame1, text="?", width= 5, command=lambda:showinfo("What can you do here?", "Here you can add homework tasks by clicking the 'Add Homework' button. Once you do that, the tasks are added onto the 'Homework List' tab. To view your list, click that tab."))
+        self.help1.pack(side=tk.TOP)
 
         # add the frames to each tab
         self.notebook.add(self.frame1, text="Add Homework")
@@ -88,8 +93,6 @@ class HomeworkOrganiserGUI:
 
     def frame1_components(self):
         '''Initialise the frame1 components'''
-        
-        '''Add Homework GUI'''
         # holds the add subjects components
         add_subject_frame = ttk.LabelFrame(self.frame1, text="Add Homework")
         add_subject_frame.pack(padx=5, pady=5)
@@ -107,7 +110,7 @@ class HomeworkOrganiserGUI:
         importance_label.grid(row=0, column=1)
 
         time_label = ttk.Label(add_subject_frame, text="Time (minutes)")
-        self.time_entry = ttk.Entry(add_subject_frame)
+        self.time_entry = ttk.Spinbox(add_subject_frame, from_=5, to=1440, increment=5)
         self.time_entry.grid(row=3,column=0)
         time_label.grid(row=2, column=0)
 
@@ -129,13 +132,15 @@ class HomeworkOrganiserGUI:
         load_subject_button = ttk.Button(self.frame1, text="Load Homework", command=self.load_subject_data)
         load_subject_button.pack()
 
+
     def frame2_components(self):
         '''Initialise the frame2 components'''
         self.time_label = ttk.Label(self.frame2, text=f"{total_time} min")
         self.time_label.pack()
 
-        self.save_button = ttk.Button(self.frame2, text="Save")
+        self.save_button = ttk.Button(self.frame2, text="Save", command=self.save)
         self.save_button.pack()
+
 
     def add_to_hmklist(self):
         '''Adds the homework to the second tab'''
@@ -190,32 +195,37 @@ class HomeworkOrganiserGUI:
         subject = self.subject_entry.get()
 
         # add the time to total time and display the new total time
-        self.time.add_to_total_time(time)
-        self.time_label.configure(text=f"{total_time} min")
+        self.time.add_to_total_time(int(time))
+        self.time_label.configure(text=f"Total time: {total_time} min")
 
+        # if there is nothing in any of the boxes then show the error
         if time == "" or importance == "" or details == "" or subject == "":
             showerror("Missing Parameters", "You have empty entries, please write something")
         else:
             try:
-                int(time)
-                # adds the entries into a dictionary if valid
-                inner_dict = {"Time":time, "Importance":importance, "Details":details}
-                subject_details.update({self.subject_entry.get():inner_dict})
-                print(subject_details)
+                time = int(time)
+                # not allowed if the time is greater than a full day
+                if time <= MAX_TIME:
+                    # adds the entries into a dictionary if valid
+                    inner_dict = {"Time":time, "Importance":importance, "Details":details}
+                    subject_details.update({self.subject_entry.get():inner_dict})
+                    print(subject_details)
 
-                # adds the subject into a list for the combobox. It updates constantly
-                self.subject_entry.config(values=list(subject_details.keys()))
+                    # adds the subject into a list for the combobox. It updates constantly
+                    self.subject_entry.config(values=list(subject_details.keys()))
 
-                # deletes the entries after confirmation
-                self.clear_subject_entries()
-                
-                #self.remove_homework_list()
-                self.add_to_hmklist()
+                    # deletes the entries after confirmation
+                    self.clear_subject_entries()
+                    
+                    #self.remove_homework_list()
+                    self.add_to_hmklist()
+                else:
+                    showerror("Invalid Entry", "Too much time! Do you hate yourself?\n(1 minute - 1440 minutes)")
 
-            except ValueError:
+            except ValueError: # if the time is not an integer
                 showerror("Invalid Entry", "Time must be an integer")
 
-    
+    # NOT FINISHED
     def check_homework_changetime(self):
         if self.tick_homework.instate(['selected']):
             self.time.remove_total_time
@@ -260,7 +270,57 @@ class HomeworkOrganiserGUI:
             details = subject_details[subject]["Details"]
             self.details_entry.insert(0, details)
 
+    
+    def save(self):
+        '''Saves the data'''
+        with open("TaskSave.json", "w") as file:
+            json.dump(subject_details, file, indent=4)
+
+    def load_save(self):
+        '''Loads the save data'''
+        global subject_details
+        # open previous save
+        try:
+            with open("TaskSave.json", "r") as file:
+                subject_details = json.load(file)
+                # loads the stuff onto the second tab
+                global count
+                for subject in subject_details:            
+                    self.homework_list_frame = ttk.LabelFrame(self.frame2, text=f"Homework #{count}")
+                    self.homework_list_frame.pack()
+                    count += 1
+
+                    # preconfigured grid for each frame
+                    self.homework_list_frame.rowconfigure([0,1,2], minsize=20)
+                    self.homework_list_frame.columnconfigure([0,1,2,3], minsize=100)
+
+                    # titles 
+                    ttk.Label(self.homework_list_frame, text="Subject", font=font_sub).grid(row=0, column=1)
+                    ttk.Label(self.homework_list_frame, text="Importance", font=font_sub).grid(row=0, column=2)
+                    ttk.Label(self.homework_list_frame, text="Time", font=font_sub).grid(row=0, column=3)
+
+                    # checkbox
+                    self.tick_homework = ttk.Checkbutton(self.homework_list_frame)
+                    self.tick_homework.grid(row=1, column=0)
+
+                    # label for items
+                    subject_lbl = ttk.Label(self.homework_list_frame, text=subject)
+                    subject_lbl.grid(row=1, column=1)
+
+                    importance_lbl = ttk.Label(self.homework_list_frame, text=subject_details[subject]["Importance"])
+                    importance_lbl.grid(row=1, column=2)
+
+                    time_lbl = ttk.Label(self.homework_list_frame, text=subject_details[subject]["Time"])
+                    time_lbl.grid(row=1, column=3)
+
+                    details_lbl = ttk.Label(self.homework_list_frame, text=subject_details[subject]["Details"])
+                    details_lbl.grid(row=2, column=1, columnspan=3)
+        
+        except FileNotFoundError:
+            subject_details = {} # from the entries
+
 
 root = tk.Tk()
 window = HomeworkOrganiserGUI(root)
+HomeworkOrganiserGUI.load_save
 root.mainloop()
