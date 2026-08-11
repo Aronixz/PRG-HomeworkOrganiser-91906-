@@ -33,8 +33,21 @@ add_subject_combolist = []
 count = 1
 
 class TimeLogic:
-    def change_total_time(self, time):       
-        total_time -= time
+    def __init__(self, root):
+        self.root = root
+        self.total_time = total_time
+
+    def remove_total_time(self, time):
+        self.total_time -= time
+
+    def add_to_total_time(self, time):
+        self.total_time += time
+
+
+class Check:
+    def __init__(self, count):
+        self.count = count
+        ttk.Checkbutton(self.homework_list_frame)
 
 
 class HomeworkOrganiserGUI:
@@ -42,6 +55,9 @@ class HomeworkOrganiserGUI:
         '''Initialise everything'''
         self.root = root
         self.root.title("Homework Organiser")
+
+        # initialise time logic
+        self.time = TimeLogic(root)
 
         # initialise ttk.Notebook in the root window
         self.notebook = ttk.Notebook(self.root)
@@ -81,7 +97,7 @@ class HomeworkOrganiserGUI:
         # entry boxes with labels
         subject_label = ttk.Label(add_subject_frame, text="Subject")
         self.subject_entry = ttk.Combobox(add_subject_frame, values=add_subject_combolist)
-        self.subject_entry.bind("<<ComboboxSelected>>", )
+
         self.subject_entry.grid(row=1, column=0)
         subject_label.grid(row=0, column=0)
 
@@ -115,18 +131,26 @@ class HomeworkOrganiserGUI:
 
     def frame2_components(self):
         '''Initialise the frame2 components'''
-        
+        self.time_label = ttk.Label(self.frame2, text=f"{total_time} min")
+        self.time_label.pack()
+
+        self.save_button = ttk.Button(self.frame2, text="Save")
+        self.save_button.pack()
 
     def add_to_hmklist(self):
         '''Adds the homework to the second tab'''
+        # creates a list for all subjects
         subject_list = list(subject_details.keys())
+
+        # resets the temporary dictionary
         temp_subject_details = {}
+
+        # makes it so that the only subject and its details is the last subject
         temp_subject_details.update({f"{subject_list[-1]}":subject_details[subject_list[-1]]})
         print(temp_subject_details)
 
         global count
-        for subject in temp_subject_details:
-            
+        for subject in temp_subject_details:            
             self.homework_list_frame = ttk.LabelFrame(self.frame2, text=f"Homework #{count}")
             self.homework_list_frame.pack()
             count += 1
@@ -158,13 +182,16 @@ class HomeworkOrganiserGUI:
             details_lbl.grid(row=2, column=1, columnspan=3)
 
 
-
     def add_subject(self):
         '''Adds the subjects into a dictionary and deletes what was in the entry boxes'''
         time = self.time_entry.get()
         importance = self.importance_entry.get()
         details = self.details_entry.get()
         subject = self.subject_entry.get()
+
+        # add the time to total time and display the new total time
+        self.time.add_to_total_time(time)
+        self.time_label.configure(text=f"{total_time} min")
 
         if time == "" or importance == "" or details == "" or subject == "":
             showerror("Missing Parameters", "You have empty entries, please write something")
@@ -187,6 +214,11 @@ class HomeworkOrganiserGUI:
 
             except ValueError:
                 showerror("Invalid Entry", "Time must be an integer")
+
+    
+    def check_homework_changetime(self):
+        if self.tick_homework.instate(['selected']):
+            self.time.remove_total_time
         
 
     def clear_subject_entries(self):
