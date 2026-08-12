@@ -22,6 +22,7 @@ font = ("Verdana", 11)
 font_sub = ("Verdana", 12, "bold")
 IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 MAX_TIME = 1440
+MIN_TIME = 2
 
 # COLOUR BUTTON
 # style = ttk.Style("Green.TButton", foreground="white", background="green")
@@ -141,6 +142,8 @@ class HomeworkOrganiserGUI:
         self.save_button = ttk.Button(self.frame2, text="Save", command=self.save)
         self.save_button.pack()
 
+        self.load_save()
+
 
     def add_to_hmklist(self):
         '''Adds the homework to the second tab'''
@@ -205,7 +208,7 @@ class HomeworkOrganiserGUI:
             try:
                 time = int(time)
                 # not allowed if the time is greater than a full day
-                if time <= MAX_TIME:
+                if time <= MAX_TIME and time >= MIN_TIME:
                     # adds the entries into a dictionary if valid
                     inner_dict = {"Time":time, "Importance":importance, "Details":details}
                     subject_details.update({self.subject_entry.get():inner_dict})
@@ -220,7 +223,7 @@ class HomeworkOrganiserGUI:
                     #self.remove_homework_list()
                     self.add_to_hmklist()
                 else:
-                    showerror("Invalid Entry", "Too much time! Do you hate yourself?\n(1 minute - 1440 minutes)")
+                    showerror("Invalid Entry", f"Invalid time!\n({MIN_TIME} minutes - {MAX_TIME} minutes)")
 
             except ValueError: # if the time is not an integer
                 showerror("Invalid Entry", "Time must be an integer")
@@ -285,6 +288,10 @@ class HomeworkOrganiserGUI:
                 subject_details = json.load(file)
                 # loads the stuff onto the second tab
                 global count
+                global total_time
+                global add_subject_combolist
+
+                add_subject_combolist = list(subject_details.keys())
                 for subject in subject_details:            
                     self.homework_list_frame = ttk.LabelFrame(self.frame2, text=f"Homework #{count}")
                     self.homework_list_frame.pack()
@@ -315,6 +322,13 @@ class HomeworkOrganiserGUI:
 
                     details_lbl = ttk.Label(self.homework_list_frame, text=subject_details[subject]["Details"])
                     details_lbl.grid(row=2, column=1, columnspan=3)
+
+                    total_time += subject_details[subject]["Time"]
+
+                # add the subject details into a list for combobox
+                self.subject_entry.config(values=add_subject_combolist)
+
+                self.time_label.configure(text=f"Total time: {total_time} min")
         
         except FileNotFoundError:
             subject_details = {} # from the entries
@@ -322,5 +336,5 @@ class HomeworkOrganiserGUI:
 
 root = tk.Tk()
 window = HomeworkOrganiserGUI(root)
-HomeworkOrganiserGUI.load_save
+#HomeworkOrganiserGUI.load_save
 root.mainloop()
