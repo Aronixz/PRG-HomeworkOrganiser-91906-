@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import*
 import json
+import os
 
 # Tell Windows your app is DPI-aware: https://stackoverflow.com/questions/41315873/attempting-to-resolve-blurred-tkinter-text-scaling-on-windows-10-high-dpi-disp
 # fixes blurry tkinter window
@@ -23,10 +24,7 @@ font_sub = ("Verdana", 12, "bold")
 IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 MAX_TIME = 1440
 MIN_TIME = 2
-
-# COLOUR BUTTON
-# style = ttk.Style("Green.TButton", foreground="white", background="green")
-# style.configure()
+CHARACTER_LIMIT = 100
 
 # VARIABLES
 total_time = 0
@@ -46,12 +44,6 @@ class TimeLogic:
         print(total_time)
 
 
-# class Check:
-#     def __init__(self, count):
-#         self.count = count
-#         ttk.Checkbutton(self.homework_list_frame)
-
-
 class HomeworkOrganiserGUI:
     def __init__(self, root):
         '''Initialise everything'''
@@ -67,14 +59,19 @@ class HomeworkOrganiserGUI:
         # initialise the frames
         self.frame1 = ttk.Frame(self.notebook)
         self.frame2 = ttk.Frame(self.notebook)
+        self.frame3 = ttk.Frame(self.notebook)
         self.frame1.pack(padx=5, pady=5)
         self.frame2.pack(padx=5, pady=5)
+        self.frame3.pack(padx=5, pady=5)
 
         # labels that will be included in each frame
         label1 = ttk.Label(self.frame1, text="Add Homework", font=font_title)
         label2 = ttk.Label(self.frame2, text="Homework List", font=font_title)
-        label1.pack(padx=15, pady=15, side=tk.TOP)
+        label3 = ttk.Label(self.frame3, text="Remove Homework", font=font_title)
+        label1.pack(padx=15, pady=15)
         label2.pack(padx=15, pady=15)
+        label3.pack(padx=15, pady=15)
+
 
         # opens a help window for clarification using show info message box
         self.help1 = ttk.Button(self.frame1, text="?", width= 5, command=lambda:showinfo("What can you do here?", "Here you can add homework tasks by clicking the 'Add Homework' button. Once you do that, the tasks are added onto the 'Homework List' tab. To view your list, click that tab."))
@@ -83,6 +80,7 @@ class HomeworkOrganiserGUI:
         # add the frames to each tab
         self.notebook.add(self.frame1, text="Add Homework")
         self.notebook.add(self.frame2, text="Homework List")
+        self.notebook.add(self.frame3, text="Remove Homework")
 
         self.notebook.pack(padx=5, pady=5)
 
@@ -90,10 +88,12 @@ class HomeworkOrganiserGUI:
         self.frame1_components()
         # frame 2 components gui
         self.frame2_components()
+        # frame 3 components gui
+        self.frame3_components()
 
 
     def frame1_components(self):
-        '''Initialise the frame1 components'''
+        '''Initialise the Add Homework components'''
         # holds the add subjects components
         add_subject_frame = ttk.LabelFrame(self.frame1, text="Add Homework")
         add_subject_frame.pack(padx=5, pady=5)
@@ -124,6 +124,7 @@ class HomeworkOrganiserGUI:
         detail_label.grid(row=4, column=0)
         self.details_entry = ttk.Entry(add_subject_frame, width=42)
         self.details_entry.grid(row=5, columnspan=2, padx=5)
+        self.details_entry.bind("<KeyRelease>", self.check_detail_entry_len)
 
         '''Load Homework on button press'''
         ttk.Label(self.frame1, text="Load homework data", font=font_sub).pack()
@@ -135,7 +136,7 @@ class HomeworkOrganiserGUI:
 
 
     def frame2_components(self):
-        '''Initialise the frame2 components'''
+        '''Initialise the Homework list components'''
         self.time_label = ttk.Label(self.frame2, text=f"{total_time} min")
         self.time_label.pack()
 
@@ -144,6 +145,39 @@ class HomeworkOrganiserGUI:
 
         self.load_save()
 
+
+    def frame3_components(self):
+        '''Initialise the components for Remove Homework frame'''
+        # combo box with all the subjects
+        self.remove_homework_combo = ttk.Combobox(self.frame3, values=list(subject_details.keys()), state="readonly")
+        self.remove_homework_combo.pack()
+
+        # remove button
+        self.remove_homework_but = ttk.Button(self.frame3, text="Remove", command=self.remove_homework)
+        self.remove_homework_but.pack()
+
+        # opens a help window for clarification using show info message box
+        self.help1 = ttk.Button(self.frame3, text="?", width= 5, command=lambda:showinfo("Heads up", "Removing a subject may require you to restart the program"))
+        self.help1.pack()
+
+
+    def remove_homework(self):
+        '''Command for the remove homework button. It removes it from the dictionary, saves, then restarts the program'''
+        global subject_details
+        homework_remove = self.remove_homework_combo.get()
+        if homework_remove in subject_details:
+            # remove
+            subject_details.pop(homework_remove, "Not Found")
+
+            # save
+            self.save()
+
+            # restarts the program
+            root.destroy()
+            os.startfile("main.py")
+        else:
+            showerror("Error", "No input in the box")
+        
 
     def add_to_hmklist(self):
         '''Adds the homework to the second tab'''
@@ -216,6 +250,7 @@ class HomeworkOrganiserGUI:
 
                     # adds the subject into a list for the combobox. It updates constantly
                     self.subject_entry.config(values=list(subject_details.keys()))
+                    self.remove_homework_combo.config(values=list(subject_details.keys()))
 
                     # deletes the entries after confirmation
                     self.clear_subject_entries()
@@ -228,7 +263,7 @@ class HomeworkOrganiserGUI:
             except ValueError: # if the time is not an integer
                 showerror("Invalid Entry", "Time must be an integer")
 
-    # NOT FINISHED
+
     def check_homework_changetime(self):
         if self.tick_homework.instate(['selected']):
             self.time.remove_total_time
@@ -278,6 +313,8 @@ class HomeworkOrganiserGUI:
         '''Saves the data'''
         with open("TaskSave.json", "w") as file:
             json.dump(subject_details, file, indent=4)
+            showinfo("Saved", "Your list is saved")
+            
 
     def load_save(self):
         '''Loads the save data'''
@@ -334,7 +371,13 @@ class HomeworkOrganiserGUI:
             subject_details = {} # from the entries
 
 
+    def check_detail_entry_len(self, event):
+        '''Checks the length of the entry used to add character limit'''
+        if len(self.details_entry.get()) >= CHARACTER_LIMIT:
+            # delete any extra characters
+            self.details_entry.delete(CHARACTER_LIMIT-1, tk.END)
+
+
 root = tk.Tk()
 window = HomeworkOrganiserGUI(root)
-#HomeworkOrganiserGUI.load_save
 root.mainloop()
