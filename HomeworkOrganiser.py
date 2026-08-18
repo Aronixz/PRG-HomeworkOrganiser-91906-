@@ -1,10 +1,9 @@
 '''
 Name: Aaron Adil
 Purpose: Help students organise their learning after school
-Start Date: 21/07/2026
-Date: 12/8/2026
-Version: 2 (almosy done second tab, need to add save features)
-Notes For Later: I can try to create a Logic class, and put the add subject functionality in the logic class. *BACK UP THE FILE FIRST!!!
+Start Date: 17/8/2026
+Date: 19/8/2026
+Version: 3 (Done testing 19/8/2026) - Need to normalise the program
 '''
 import tkinter as tk
 from tkinter import ttk
@@ -18,9 +17,8 @@ from ctypes import windll
 windll.shcore.SetProcessDpiAwareness(1)
 
 # CONSTANTS
-font_title = ("Verdana", 14, "bold")
-font = ("Verdana", 11)
-font_sub = ("Verdana", 12, "bold")
+FONT_TITLE = ("Verdana", 14, "bold")
+FONT_SUB = ("Verdana", 12, "bold")
 IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 MAX_TIME = 1440
 MIN_TIME = 2
@@ -65,9 +63,9 @@ class HomeworkOrganiserGUI:
         self.frame3.pack(padx=5, pady=5)
 
         # labels that will be included in each frame
-        label1 = ttk.Label(self.frame1, text="Add Homework", font=font_title)
-        label2 = ttk.Label(self.frame2, text="Homework List", font=font_title)
-        label3 = ttk.Label(self.frame3, text="Remove Homework", font=font_title)
+        label1 = ttk.Label(self.frame1, text="Add Homework", font=FONT_TITLE)
+        label2 = ttk.Label(self.frame2, text="Homework List", font=FONT_TITLE)
+        label3 = ttk.Label(self.frame3, text="Remove Homework", font=FONT_TITLE)
         label1.pack(padx=15, pady=15)
         label2.pack(padx=15, pady=15)
         label3.pack(padx=15, pady=15)
@@ -130,7 +128,7 @@ class HomeworkOrganiserGUI:
         self.details_entry.bind("<KeyRelease>", self.check_detail_entry_len)
 
         '''Load Homework on button press'''
-        ttk.Label(self.frame1, text="Load homework data", font=font_sub).pack()
+        ttk.Label(self.frame1, text="Load homework data", font=FONT_SUB).pack()
         ttk.Label(self.frame1, text="If you want to edit a previous task, \nselect it from the subject dropdown, \nand click this button ⬇").pack()
 
         # Load homework button
@@ -205,9 +203,9 @@ class HomeworkOrganiserGUI:
             self.homework_list_frame.columnconfigure([0,1,2,3], minsize=100)
 
             # titles 
-            ttk.Label(self.homework_list_frame, text="Subject", font=font_sub).grid(row=0, column=1)
-            ttk.Label(self.homework_list_frame, text="Importance", font=font_sub).grid(row=0, column=2)
-            ttk.Label(self.homework_list_frame, text="Time", font=font_sub).grid(row=0, column=3)
+            ttk.Label(self.homework_list_frame, text="Subject", font=FONT_SUB).grid(row=0, column=1)
+            ttk.Label(self.homework_list_frame, text="Importance", font=FONT_SUB).grid(row=0, column=2)
+            ttk.Label(self.homework_list_frame, text="Time", font=FONT_SUB).grid(row=0, column=3)
 
             # checkbox
             self.tick_homework = ttk.Checkbutton(self.homework_list_frame)
@@ -234,16 +232,15 @@ class HomeworkOrganiserGUI:
         details = self.details_entry.get()
         subject = self.subject_entry.get()
 
-        # add the time to total time and display the new total time
-        self.time.add_to_total_time(int(time))
-        self.time_label.configure(text=f"Total time: {total_time} min")
-
         # if there is nothing in any of the boxes then show the error
         if time == "" or importance == "" or details == "" or subject == "":
             showerror("Missing Parameters", "You have empty entries, please write something")
         else:
             try:
                 time = int(time)
+                # add the time to total time and display the new total time
+                self.time.add_to_total_time(time)
+                self.time_label.configure(text=f"Total time: {total_time} min")
                 # not allowed if the time is greater than a full day
                 if time <= MAX_TIME and time >= MIN_TIME:
                     # adds the entries into a dictionary if valid
@@ -342,9 +339,9 @@ class HomeworkOrganiserGUI:
                     self.homework_list_frame.columnconfigure([0,1,2,3], minsize=100)
 
                     # titles 
-                    ttk.Label(self.homework_list_frame, text="Subject", font=font_sub).grid(row=0, column=1)
-                    ttk.Label(self.homework_list_frame, text="Importance", font=font_sub).grid(row=0, column=2)
-                    ttk.Label(self.homework_list_frame, text="Time", font=font_sub).grid(row=0, column=3)
+                    ttk.Label(self.homework_list_frame, text="Subject", font=FONT_SUB).grid(row=0, column=1)
+                    ttk.Label(self.homework_list_frame, text="Importance", font=FONT_SUB).grid(row=0, column=2)
+                    ttk.Label(self.homework_list_frame, text="Time", font=FONT_SUB).grid(row=0, column=3)
 
                     # checkbox
                     self.tick_homework = ttk.Checkbutton(self.homework_list_frame)
