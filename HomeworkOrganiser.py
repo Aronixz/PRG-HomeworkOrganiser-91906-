@@ -24,7 +24,7 @@ font_sub = ("Verdana", 12, "bold")
 IMPORTANCE = ["Low", "Medium", "High", "Very High"]
 MAX_TIME = 1440
 MIN_TIME = 2
-CHARACTER_LIMIT = 100
+CHARACTER_LIMIT = 71
 
 # VARIABLES
 total_time = 0
@@ -101,14 +101,17 @@ class HomeworkOrganiserGUI:
         # entry boxes with labels
         subject_label = ttk.Label(add_subject_frame, text="Subject")
         self.subject_entry = ttk.Combobox(add_subject_frame, values=add_subject_combolist)
-
         self.subject_entry.grid(row=1, column=0)
         subject_label.grid(row=0, column=0)
+
+        # this code runs the clearing function on key release
+        self.subject_entry.bind("<KeyRelease>", self.check_detail_entry_len)
 
         importance_label = ttk.Label(add_subject_frame, text="Importance")
         self.importance_entry = ttk.Combobox(add_subject_frame, values=IMPORTANCE)
         self.importance_entry.grid(row=1,column=1)
         importance_label.grid(row=0, column=1)
+        self.importance_entry.bind("<KeyRelease>", self.check_detail_entry_len)
 
         time_label = ttk.Label(add_subject_frame, text="Time (minutes)")
         self.time_entry = ttk.Spinbox(add_subject_frame, from_=5, to=1440, increment=5)
@@ -174,7 +177,7 @@ class HomeworkOrganiserGUI:
 
             # restarts the program
             root.destroy()
-            os.startfile("main.py")
+            os.startfile("HomeworkOrganiser.py")
         else:
             showerror("Error", "No input in the box")
         
@@ -376,8 +379,23 @@ class HomeworkOrganiserGUI:
         if len(self.details_entry.get()) >= CHARACTER_LIMIT:
             # delete any extra characters
             self.details_entry.delete(CHARACTER_LIMIT-1, tk.END)
+        if len(self.importance_entry.get()) >= CHARACTER_LIMIT:
+            # delete any extra characters
+            self.importance_entry.delete(CHARACTER_LIMIT-1, tk.END)
+        if len(self.subject_entry.get()) >= CHARACTER_LIMIT:
+            # delete any extra characters
+            self.subject_entry.delete(CHARACTER_LIMIT-1, tk.END)
 
+def save_warning():
+    '''Warns the user to save the list before closing'''
+    response = askyesno('Exit','Have you saved yet?\n(you can save from the "Homework List" tab)')
+    if response: # if it is 'yes' then close the window
+        root.destroy()
 
 root = tk.Tk()
+
+# gives a warning on closure of the program
+root.protocol("WM_DELETE_WINDOW", save_warning) 
+
 window = HomeworkOrganiserGUI(root)
 root.mainloop()
