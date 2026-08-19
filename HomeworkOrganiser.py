@@ -3,7 +3,7 @@ Name: Aaron Adil
 Purpose: Help students organise their learning after school
 Start Date: 17/8/2026
 Date: 19/8/2026
-Version: 3 (Done testing 19/8/2026) - Need to normalise the program
+Final Version: 4 (Done video testing 20/8/2026)
 '''
 import tkinter as tk
 from tkinter import ttk
@@ -33,13 +33,14 @@ count = 1
 
 class TimeLogic:
     def remove_total_time(self, time):
+        '''Removes time from total time'''
         global total_time
         total_time -= time
 
     def add_to_total_time(self, time):
+        '''Adds time to the total time'''
         global total_time
         total_time += time
-        print(total_time)
 
 
 class HomeworkOrganiserGUI:
@@ -232,41 +233,61 @@ class HomeworkOrganiserGUI:
         details = self.details_entry.get()
         subject = self.subject_entry.get()
 
+        # check if the subject already exists for editing it
+
         # if there is nothing in any of the boxes then show the error
         if time == "" or importance == "" or details == "" or subject == "":
             showerror("Missing Parameters", "You have empty entries, please write something")
         else:
             try:
                 time = int(time)
-                # add the time to total time and display the new total time
-                self.time.add_to_total_time(time)
-                self.time_label.configure(text=f"Total time: {total_time} min")
-                # not allowed if the time is greater than a full day
-                if time <= MAX_TIME and time >= MIN_TIME:
-                    # adds the entries into a dictionary if valid
-                    inner_dict = {"Time":time, "Importance":importance, "Details":details}
-                    subject_details.update({self.subject_entry.get():inner_dict})
-                    print(subject_details)
+                # check if the subject already exists for editing it
+                if subject not in subject_details:
+                    # add the time to total time and display the new total time
+                    self.time.add_to_total_time(time)
+                    self.time_label.configure(text=f"Total time: {total_time} min")
+                    # not allowed if the time is greater than a full day
+                    if time <= MAX_TIME and time >= MIN_TIME:
+                        # adds the entries into a dictionary if valid
+                        inner_dict = {"Time":time, "Importance":importance, "Details":details}
+                        subject_details.update({self.subject_entry.get():inner_dict})
+                        print(subject_details)
 
-                    # adds the subject into a list for the combobox. It updates constantly
-                    self.subject_entry.config(values=list(subject_details.keys()))
-                    self.remove_homework_combo.config(values=list(subject_details.keys()))
+                        # adds the subject into a list for the combobox. It updates constantly
+                        self.subject_entry.config(values=list(subject_details.keys()))
+                        self.remove_homework_combo.config(values=list(subject_details.keys()))
 
-                    # deletes the entries after confirmation
-                    self.clear_subject_entries()
-                    
-                    #self.remove_homework_list()
-                    self.add_to_hmklist()
+                        # deletes the entries after confirmation
+                        self.clear_subject_entries()
+
+                        self.add_to_hmklist()
+                    else:
+                        showerror("Invalid Entry", f"Invalid time!\n({MIN_TIME} minutes - {MAX_TIME} minutes)")
                 else:
-                    showerror("Invalid Entry", f"Invalid time!\n({MIN_TIME} minutes - {MAX_TIME} minutes)")
+                    # add the time to total time and display the new total time
+                    self.time.add_to_total_time(time)
+                    self.time_label.configure(text=f"Total time: {total_time} min")
+                    # not allowed if the time is greater than a full day
+                    if time <= MAX_TIME and time >= MIN_TIME:
+                        # adds the entries into a dictionary if valid
+                        inner_dict = {"Time":time, "Importance":importance, "Details":details}
+                        subject_details.update({self.subject_entry.get():inner_dict})
+                        print(subject_details)
 
+                        # adds the subject into a list for the combobox. It updates constantly
+                        self.subject_entry.config(values=list(subject_details.keys()))
+                        self.remove_homework_combo.config(values=list(subject_details.keys()))
+
+                        # deletes the entries after confirmation
+                        self.clear_subject_entries()
+
+                        self.save()
+                        root.destroy()
+                    else:
+                        showerror("Invalid Entry", f"Invalid time!\n({MIN_TIME} minutes - {MAX_TIME} minutes)")
+                    
             except ValueError: # if the time is not an integer
                 showerror("Invalid Entry", "Time must be an integer")
-
-
-    def check_homework_changetime(self):
-        if self.tick_homework.instate(['selected']):
-            self.time.remove_total_time
         
 
     def clear_subject_entries(self):
@@ -360,6 +381,7 @@ class HomeworkOrganiserGUI:
                     details_lbl = ttk.Label(self.homework_list_frame, text=subject_details[subject]["Details"])
                     details_lbl.grid(row=2, column=1, columnspan=3)
 
+                    # adds each subject's time to the total time
                     total_time += subject_details[subject]["Time"]
 
                 # add the subject details into a list for combobox
@@ -383,9 +405,10 @@ class HomeworkOrganiserGUI:
             # delete any extra characters
             self.subject_entry.delete(CHARACTER_LIMIT-1, tk.END)
 
+
 def save_warning():
     '''Warns the user to save the list before closing'''
-    response = askyesno('Exit','Have you saved yet?\n(you can save from the "Homework List" tab)')
+    response = askyesno('Exit','Do you want to save first?\n(you can save from the "Homework List" tab)')
     if response: # if it is 'yes' then close the window
         root.destroy()
 
